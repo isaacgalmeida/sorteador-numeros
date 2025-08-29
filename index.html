@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sorteador de Números por Grupo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .grupo {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .grupo::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+        
+        .grupo h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        
+        .card-container {
+            perspective: 1000px;
+            height: 150px;
+            margin: 15px 0;
+        }
+        
+        .card {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+        
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        
+        .card-front {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        .card-back {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            color: white;
+            transform: rotateY(180deg);
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 2px solid #e1e1e1;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        
+        input[type="text"]:focus, input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            flex: 1;
+            min-width: 120px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(17, 153, 142, 0.4);
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #ffa726, #ff7043);
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 167, 38, 0.4);
+        }
+        
+        .controls-section {
+            margin-top: 40px;
+            padding: 25px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 15px;
+            border: 2px dashed #ccc;
+        }
+        
+        .controls-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .control-group {
+            margin-bottom: 20px;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .resultado {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(17, 153, 142, 0.1);
+            border-radius: 8px;
+            border-left: 4px solid #11998e;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                margin: 10px;
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            button {
+                min-width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Sorteador de Números por Grupo</h1>
+    
+    <div id="grupos-container">
+    </div>
+
+    <button class="btn-success" onclick="adicionarGrupo()">Adicionar Novo Grupo de Sorteio</button>
+    
+    <!-- Controls Section -->
+    <div class="controls-section">
+        <h2>⚙️ Configurações</h2>
+        
+        <div class="control-group">
+            <label for="delay-input">Tempo de espera para sorteio (segundos):</label>
+            <input type="number" id="delay-input" value="2" min="0" max="10" step="0.5">
+        </div>
+        
+        <div class="button-group">
+            <button class="btn-warning" onclick="salvarDados()">💾 Salvar Dados</button>
+            <button class="btn-primary" onclick="carregarDados()">📂 Carregar Dados</button>
+            <button class="btn-danger" onclick="limparTudo()">🗑️ Limpar Tudo</button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    function adicionarGrupo() {
+        const container = document.getElementById('grupos-container');
+        const grupoDiv = document.createElement('div');
+        grupoDiv.className = 'grupo';
+
+        const nomeGrupo = prompt("Digite o nome do novo grupo:");
+        if (!nomeGrupo) return; // Cancela se o usuário não inserir um nome
+
+        grupoDiv.innerHTML = `
+            <h3>${nomeGrupo}</h3>
+            <label>Números (separados por vírgula):</label>
+            <input type="text" placeholder="Ex: 1, 4, 6, 7, 9">
+            <label>Quantidade a sortear:</label>
+            <input type="number" value="1" min="1">
+            <button onclick="realizarSorteio(this.parentNode)">Sortear</button>
+            <div class="resultado"></div>
+        `;
+
+        container.appendChild(grupoDiv);
+    }
+
+    function realizarSorteio(grupoDiv) {
+        const numerosInput = grupoDiv.querySelector('input[type="text"]').value;
+        const quantidadeInput = parseInt(grupoDiv.querySelector('input[type="number"]').value, 10);
+        const resultadoDiv = grupoDiv.querySelector('.resultado');
+
+        const numerosArray = numerosInput.split(',').map(n => n.trim()).filter(n => n !== '');
+
+        if (numerosArray.length === 0) {
+            resultadoDiv.textContent = 'Por favor, insira os números para o sorteio.';
+            return;
+        }
+
+        if (quantidadeInput > numerosArray.length) {
+            resultadoDiv.textContent = 'A quantidade a sortear não pode ser maior que a quantidade de números disponíveis.';
+            return;
+        }
+
+        let sorteados = [];
+        let copiaArray = [...numerosArray];
+
+        for (let i = 0; i < quantidadeInput; i++) {
+            const indiceSorteado = Math.floor(Math.random() * copiaArray.length);
+            sorteados.push(copiaArray.splice(indiceSorteado, 1)[0]);
+        }
+
+        resultadoDiv.textContent = 'Números Sorteados: ' + sorteados.join(', ');
+    }
+
+    // Adiciona os grupos de exemplo ao carregar a página
+    window.onload = function() {
+        const container = document.getElementById('grupos-container');
+
+        const grupoFauna = document.createElement('div');
+        grupoFauna.className = 'grupo';
+        grupoFauna.innerHTML = `
+            <h3>Fauna</h3>
+            <label>Números (separados por vírgula):</label>
+            <input type="text" value="1, 4, 6, 7, 9">
+            <label>Quantidade a sortear:</label>
+            <input type="number" value="2" min="1">
+            <button onclick="realizarSorteio(this.parentNode)">Sortear</button>
+            <div class="resultado"></div>
+        `;
+        container.appendChild(grupoFauna);
+
+        const grupoFlora = document.createElement('div');
+        grupoFlora.className = 'grupo';
+        grupoFlora.innerHTML = `
+            <h3>Flora</h3>
+            <label>Números (separados por vírgula):</label>
+            <input type="text" value="2, 3, 5, 8, 10">
+            <label>Quantidade a sortear:</label>
+            <input type="number" value="2" min="1">
+            <button onclick="realizarSorteio(this.parentNode)">Sortear</button>
+            <div class="resultado"></div>
+        `;
+        container.appendChild(grupoFlora);
+    };
+</script>
+
+</body>
+</html>
