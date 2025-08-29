@@ -318,48 +318,87 @@ function realizarSorteio(grupoId) {
     
     const delaySegundos = Math.max(0, Math.min(10, parseFloat(document.getElementById('delay-input').value) || 2));
     
-    setTimeout(() => {
-        try {
-            let sorteados = [];
-            let copiaArray = [...numerosArray];
+    // Start countdown if delay is greater than 0
+    if (delaySegundos > 0) {
+        iniciarContadorRegressivo(resultadoDiv, card, delaySegundos, () => {
+            executarSorteio(numerosArray, quantidadeInput, resultadoDiv, card, sortearBtn, grupoDiv);
+        });
+    } else {
+        // Execute immediately if no delay
+        executarSorteio(numerosArray, quantidadeInput, resultadoDiv, card, sortearBtn, grupoDiv);
+    }
+}
 
-            for (let i = 0; i < quantidadeInput; i++) {
-                const indiceSorteado = Math.floor(Math.random() * copiaArray.length);
-                sorteados.push(copiaArray.splice(indiceSorteado, 1)[0]);
+// New function to handle countdown
+function iniciarContadorRegressivo(resultadoDiv, card, delaySegundos, callback) {
+    let tempoRestante = delaySegundos;
+    
+    // Show countdown on card back
+    resultadoDiv.innerHTML = `
+        <div class="countdown-text">Sorteando em:</div>
+        <div class="countdown">${Math.ceil(tempoRestante)}</div>
+    `;
+    
+    // Flip card to show countdown
+    card.classList.add('flipped');
+    
+    const intervalId = setInterval(() => {
+        tempoRestante -= 0.1;
+        
+        if (tempoRestante <= 0) {
+            clearInterval(intervalId);
+            callback();
+        } else {
+            // Update countdown display
+            const countdownElement = resultadoDiv.querySelector('.countdown');
+            if (countdownElement) {
+                countdownElement.textContent = Math.ceil(tempoRestante);
             }
+        }
+    }, 100); // Update every 100ms for smoother countdown
+}
 
-            // Enhanced display with large numbers
-            resultadoDiv.innerHTML = `
-                <h4>🎉 Números Sorteados:</h4>
-                <div class="numbers">
-                    ${sorteados.join(' • ')}
-                </div>
-            `;
-            
-            // Flip the card with enhanced animation
-            card.classList.add('flipped');
-            
-            // Add celebration effect
-            adicionarCelebracao(grupoDiv);
-            
-            // Vibration feedback on mobile devices
-            if ('vibrate' in navigator) {
-                navigator.vibrate([200, 100, 200]);
-            }
-            
-            mostrarNotificacao('Sorteio realizado com sucesso!', 'success');
-            
-        } catch (error) {
-            console.error('Erro no sorteio:', error);
-            mostrarNotificacao('Erro ao realizar sorteio: ' + error.message, 'error');
-            resultadoDiv.innerHTML = '<div style="color: hsl(var(--destructive));">Erro no sorteio</div>';
-        } finally {
-            // Re-enable button
-            sortearBtn.disabled = false;
-            sortearBtn.innerHTML = '🎯 Sortear';
+// Separated lottery execution logic
+function executarSorteio(numerosArray, quantidadeInput, resultadoDiv, card, sortearBtn, grupoDiv) {
+    try {
+        let sorteados = [];
+        let copiaArray = [...numerosArray];
+
+        for (let i = 0; i < quantidadeInput; i++) {
+            const indiceSorteado = Math.floor(Math.random() * copiaArray.length);
+            sorteados.push(copiaArray.splice(indiceSorteado, 1)[0]);
+        }
+
+        // Enhanced display with large numbers
+        resultadoDiv.innerHTML = `
+            <h4>🎉 Números Sorteados:</h4>
+            <div class="numbers">
+                ${sorteados.join(' • ')}
+            </div>
+        `;
+        
+        // Ensure card is flipped to show results
+        card.classList.add('flipped');
+        
+        // Add celebration effect
+        adicionarCelebracao(grupoDiv);
+        
+        // Vibration feedback on mobile devices
+        if ('vibrate' in navigator) {
+            navigator.vibrate([200, 100, 200]);
         }
         
-    }, delaySegundos * 1000);
+        mostrarNotificacao('Sorteio realizado com sucesso!', 'success');
+        
+    } catch (error) {
+        console.error('Erro no sorteio:', error);
+        mostrarNotificacao('Erro ao realizar sorteio: ' + error.message, 'error');
+        resultadoDiv.innerHTML = '<div style="color: hsl(var(--destructive));">Erro no sorteio</div>';
+    } finally {
+        // Re-enable button
+        sortearBtn.disabled = false;
+        sortearBtn.innerHTML = '🎯 Sortear';
+    }
 }
 
 // Enhanced initialization with error handling

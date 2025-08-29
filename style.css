@@ -466,6 +466,10 @@ button:disabled {
         font-size: 5rem;
     }
     
+    .countdown {
+        font-size: 6rem;
+    }
+    
     .resultado h4 {
         font-size: 1.4rem;
     }
@@ -486,6 +490,10 @@ button:disabled {
     
     .resultado .numbers {
         font-size: 6rem;
+    }
+    
+    .countdown {
+        font-size: 7rem;
     }
 }
 
@@ -530,6 +538,10 @@ button:disabled {
     }
     
     .celebration {
+        animation: none;
+    }
+    
+    .countdown {
         animation: none;
     }
 }
