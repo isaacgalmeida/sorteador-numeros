@@ -435,6 +435,10 @@ button:disabled {
         font-size: 4rem;
     }
     
+    .countdown {
+        font-size: 5rem;
+    }
+    
     .button-group {
         flex-wrap: nowrap;
     }
