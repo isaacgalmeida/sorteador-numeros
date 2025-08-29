@@ -276,84 +276,226 @@
 </div>
 
 <script>
-    function adicionarGrupo() {
+    let grupoIdCounter = 1;
+    
+    // Função para gerar ID único
+    function gerarIdGrupo() {
+        return 'grupo_' + grupoIdCounter++;
+    }
+    
+    // Função para salvar dados no localStorage
+    function salvarDados() {
+        const grupos = [];
+        const gruposElements = document.querySelectorAll('.grupo');
+        
+        gruposElements.forEach(grupo => {
+            const nome = grupo.querySelector('h3').textContent;
+            const numeros = grupo.querySelector('input[type="text"]').value;
+            const quantidade = grupo.querySelector('input[type="number"]').value;
+            
+            grupos.push({
+                nome: nome,
+                numeros: numeros,
+                quantidade: quantidade
+            });
+        });
+        
+        const delayValue = document.getElementById('delay-input').value;
+        
+        const dadosParaSalvar = {
+            grupos: grupos,
+            delay: delayValue,
+            timestamp: new Date().toISOString()
+        };
+        
+        localStorage.setItem('sorteador-dados', JSON.stringify(dadosParaSalvar));
+        alert('Dados salvos com sucesso!');
+    }
+    
+    // Função para carregar dados do localStorage
+    function carregarDados() {
+        const dadosSalvos = localStorage.getItem('sorteador-dados');
+        
+        if (!dadosSalvos) {
+            alert('Nenhum dado salvo encontrado!');
+            return;
+        }
+        
+        try {
+            const dados = JSON.parse(dadosSalvos);
+            
+            // Limpar grupos existentes
+            document.getElementById('grupos-container').innerHTML = '';
+            
+            // Restaurar delay
+            if (dados.delay) {
+                document.getElementById('delay-input').value = dados.delay;
+            }
+            
+            // Restaurar grupos
+            if (dados.grupos && dados.grupos.length > 0) {
+                dados.grupos.forEach(grupoData => {
+                    criarGrupo(grupoData.nome, grupoData.numeros, grupoData.quantidade);
+                });
+                alert('Dados carregados com sucesso!');
+            } else {
+                alert('Nenhum grupo encontrado nos dados salvos!');
+            }
+        } catch (error) {
+            alert('Erro ao carregar dados: ' + error.message);
+        }
+    }
+    
+    // Função para limpar tudo
+    function limparTudo() {
+        if (confirm('Tem certeza que deseja limpar todos os dados salvos? Esta ação não pode ser desfeita.')) {
+            localStorage.removeItem('sorteador-dados');
+            document.getElementById('grupos-container').innerHTML = '';
+            document.getElementById('delay-input').value = '2';
+            alert('Todos os dados foram limpos!');
+        }
+    }
+    
+    // Função para criar um grupo
+    function criarGrupo(nome, numeros = '', quantidade = '1') {
         const container = document.getElementById('grupos-container');
         const grupoDiv = document.createElement('div');
+        const grupoId = gerarIdGrupo();
         grupoDiv.className = 'grupo';
-
-        const nomeGrupo = prompt("Digite o nome do novo grupo:");
-        if (!nomeGrupo) return; // Cancela se o usuário não inserir um nome
+        grupoDiv.id = grupoId;
 
         grupoDiv.innerHTML = `
-            <h3>${nomeGrupo}</h3>
+            <h3>${nome}</h3>
             <label>Números (separados por vírgula):</label>
-            <input type="text" placeholder="Ex: 1, 4, 6, 7, 9">
+            <input type="text" value="${numeros}" placeholder="Ex: 1, 4, 6, 7, 9">
             <label>Quantidade a sortear:</label>
-            <input type="number" value="1" min="1">
-            <button onclick="realizarSorteio(this.parentNode)">Sortear</button>
-            <div class="resultado"></div>
+            <input type="number" value="${quantidade}" min="1">
+            
+            <div class="card-container">
+                <div class="card" id="card-${grupoId}">
+                    <div class="card-front">
+                        🎲 Clique em "Sortear" para revelar os números!
+                    </div>
+                    <div class="card-back">
+                        <div class="resultado"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="button-group">
+                <button class="btn-primary" onclick="realizarSorteio('${grupoId}')">🎯 Sortear</button>
+                <button class="btn-danger" onclick="excluirGrupo('${grupoId}')">🗑️ Excluir Grupo</button>
+            </div>
         `;
 
         container.appendChild(grupoDiv);
     }
+    
+    function adicionarGrupo() {
+        const nomeGrupo = prompt("Digite o nome do novo grupo:");
+        if (!nomeGrupo || nomeGrupo.trim() === '') {
+            alert('Nome do grupo é obrigatório!');
+            return;
+        }
+        
+        criarGrupo(nomeGrupo.trim());
+    }
+    
+    function excluirGrupo(grupoId) {
+        const grupoDiv = document.getElementById(grupoId);
+        const nomeGrupo = grupoDiv.querySelector('h3').textContent;
+        
+        if (confirm(`Tem certeza que deseja excluir o grupo "${nomeGrupo}"?`)) {
+            grupoDiv.remove();
+        }
+    }
 
-    function realizarSorteio(grupoDiv) {
+    function realizarSorteio(grupoId) {
+        const grupoDiv = document.getElementById(grupoId);
         const numerosInput = grupoDiv.querySelector('input[type="text"]').value;
         const quantidadeInput = parseInt(grupoDiv.querySelector('input[type="number"]').value, 10);
+        const card = grupoDiv.querySelector('.card');
         const resultadoDiv = grupoDiv.querySelector('.resultado');
-
+        const sortearBtn = grupoDiv.querySelector('.btn-primary');
+        
+        // Reset card flip
+        card.classList.remove('flipped');
+        
         const numerosArray = numerosInput.split(',').map(n => n.trim()).filter(n => n !== '');
 
         if (numerosArray.length === 0) {
-            resultadoDiv.textContent = 'Por favor, insira os números para o sorteio.';
+            alert('Por favor, insira os números para o sorteio.');
             return;
         }
 
         if (quantidadeInput > numerosArray.length) {
-            resultadoDiv.textContent = 'A quantidade a sortear não pode ser maior que a quantidade de números disponíveis.';
+            alert('A quantidade a sortear não pode ser maior que a quantidade de números disponíveis.');
             return;
         }
+        
+        // Disable button and show loading
+        sortearBtn.disabled = true;
+        sortearBtn.innerHTML = '<span class="loading"></span> Sorteando...';
+        
+        const delaySegundos = parseFloat(document.getElementById('delay-input').value) || 2;
+        
+        setTimeout(() => {
+            let sorteados = [];
+            let copiaArray = [...numerosArray];
 
-        let sorteados = [];
-        let copiaArray = [...numerosArray];
+            for (let i = 0; i < quantidadeInput; i++) {
+                const indiceSorteado = Math.floor(Math.random() * copiaArray.length);
+                sorteados.push(copiaArray.splice(indiceSorteado, 1)[0]);
+            }
 
-        for (let i = 0; i < quantidadeInput; i++) {
-            const indiceSorteado = Math.floor(Math.random() * copiaArray.length);
-            sorteados.push(copiaArray.splice(indiceSorteado, 1)[0]);
-        }
-
-        resultadoDiv.textContent = 'Números Sorteados: ' + sorteados.join(', ');
+            resultadoDiv.innerHTML = `
+                <div style="text-align: center;">
+                    <h4>🎉 Números Sorteados:</h4>
+                    <div style="font-size: 1.5em; color: #11998e; margin-top: 10px;">
+                        ${sorteados.join(' • ')}
+                    </div>
+                </div>
+            `;
+            
+            // Flip the card
+            card.classList.add('flipped');
+            
+            // Re-enable button
+            sortearBtn.disabled = false;
+            sortearBtn.innerHTML = '🎯 Sortear';
+            
+        }, delaySegundos * 1000);
     }
 
-    // Adiciona os grupos de exemplo ao carregar a página
+    // Carrega dados salvos e grupos de exemplo ao iniciar
     window.onload = function() {
-        const container = document.getElementById('grupos-container');
-
-        const grupoFauna = document.createElement('div');
-        grupoFauna.className = 'grupo';
-        grupoFauna.innerHTML = `
-            <h3>Fauna</h3>
-            <label>Números (separados por vírgula):</label>
-            <input type="text" value="1, 4, 6, 7, 9">
-            <label>Quantidade a sortear:</label>
-            <input type="number" value="2" min="1">
-            <button onclick="realizarSorteio(this.parentNode)">Sortear</button>
-            <div class="resultado"></div>
-        `;
-        container.appendChild(grupoFauna);
-
-        const grupoFlora = document.createElement('div');
-        grupoFlora.className = 'grupo';
-        grupoFlora.innerHTML = `
-            <h3>Flora</h3>
-            <label>Números (separados por vírgula):</label>
-            <input type="text" value="2, 3, 5, 8, 10">
-            <label>Quantidade a sortear:</label>
-            <input type="number" value="2" min="1">
-            <button onclick="realizarSorteio(this.parentNode)">Sortear</button>
-            <div class="resultado"></div>
-        `;
-        container.appendChild(grupoFlora);
+        // Tentar carregar dados salvos primeiro
+        const dadosSalvos = localStorage.getItem('sorteador-dados');
+        
+        if (dadosSalvos) {
+            try {
+                const dados = JSON.parse(dadosSalvos);
+                
+                // Restaurar delay
+                if (dados.delay) {
+                    document.getElementById('delay-input').value = dados.delay;
+                }
+                
+                // Restaurar grupos se existirem
+                if (dados.grupos && dados.grupos.length > 0) {
+                    dados.grupos.forEach(grupoData => {
+                        criarGrupo(grupoData.nome, grupoData.numeros, grupoData.quantidade);
+                    });
+                    return; // Não criar grupos de exemplo se há dados salvos
+                }
+            } catch (error) {
+                console.error('Erro ao carregar dados salvos:', error);
+            }
+        }
+        
+        // Criar grupos de exemplo apenas se não há dados salvos
+        criarGrupo('Fauna', '1, 4, 6, 7, 9', '2');
+        criarGrupo('Flora', '2, 3, 5, 8, 10', '2');
     };
 </script>
 
