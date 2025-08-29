@@ -1,5 +1,18 @@
 let grupoIdCounter = 1;
 
+// Array of icons for groups
+const grupoIcons = [
+    '🎯', '🌟', '🎲', '⭐', '🔥', '💎', '🎊', '🎈', 
+    '🌈', '⚡', '🎪', '🎭', '🎨', '🎵', '🎸', '🏆'
+];
+
+// Array of card colors
+const cardColors = ['color-1', 'color-2', 'color-3', 'color-4', 'color-5', 'color-6', 'color-7', 'color-8'];
+
+// Counter for assigning colors and icons
+let colorCounter = 0;
+let iconCounter = 0;
+
 // Security: Input sanitization and validation
 function sanitizeInput(input) {
     if (typeof input !== 'string') return '';
@@ -50,6 +63,8 @@ function salvarDados() {
         const dadosParaSalvar = {
             grupos: grupos,
             delay: delayValue,
+            iconCounter: iconCounter,
+            colorCounter: colorCounter,
             timestamp: new Date().toISOString(),
             version: '2.0'
         };
@@ -86,6 +101,14 @@ function carregarDados() {
             document.getElementById('delay-input').value = dados.delay;
         }
         
+        // Restore counters
+        if (dados.iconCounter !== undefined) {
+            iconCounter = dados.iconCounter;
+        }
+        if (dados.colorCounter !== undefined) {
+            colorCounter = dados.colorCounter;
+        }
+        
         // Restore groups with validation
         if (dados.grupos && Array.isArray(dados.grupos) && dados.grupos.length > 0) {
             dados.grupos.forEach(grupoData => {
@@ -113,6 +136,9 @@ function limparTudo() {
             localStorage.removeItem('sorteador-dados');
             document.getElementById('grupos-container').innerHTML = '';
             document.getElementById('delay-input').value = '2';
+            // Reset counters
+            iconCounter = 0;
+            colorCounter = 0;
             mostrarNotificacao('Todos os dados foram limpos!', 'success');
         } catch (error) {
             console.error('Erro ao limpar dados:', error);
@@ -170,8 +196,16 @@ function criarGrupo(nome, numeros = '', quantidade = '1') {
     numeros = sanitizeInput(numeros);
     quantidade = parseInt(quantidade, 10) || 1;
 
+    // Get icon and color for this group
+    const icon = grupoIcons[iconCounter % grupoIcons.length];
+    const cardColor = cardColors[colorCounter % cardColors.length];
+    
+    // Increment counters
+    iconCounter++;
+    colorCounter++;
+
     grupoDiv.innerHTML = `
-        <h3>${nome}</h3>
+        <h3><span class="icon">${icon}</span>${nome}</h3>
         <label>Números (separados por vírgula):</label>
         <input type="text" value="${numeros}" placeholder="Ex: 1, 4, 6, 7, 9" 
                pattern="[0-9,\\s]+" 
@@ -183,7 +217,7 @@ function criarGrupo(nome, numeros = '', quantidade = '1') {
         
         <div class="card-container">
             <div class="card" id="card-${grupoId}">
-                <div class="card-front">
+                <div class="card-front ${cardColor}">
                     🎲 Toque em "Sortear" para revelar os números!
                 </div>
                 <div class="card-back">
@@ -413,6 +447,14 @@ window.onload = function() {
             // Restore delay with validation
             if (dados.delay && !isNaN(dados.delay)) {
                 document.getElementById('delay-input').value = Math.max(0, Math.min(10, dados.delay));
+            }
+            
+            // Restore counters
+            if (dados.iconCounter !== undefined) {
+                iconCounter = dados.iconCounter;
+            }
+            if (dados.colorCounter !== undefined) {
+                colorCounter = dados.colorCounter;
             }
             
             // Restore groups if they exist and are valid
