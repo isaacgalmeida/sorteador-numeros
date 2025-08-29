@@ -5,6 +5,51 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sorteador de Números por Grupo</title>
     <style>
+        :root {
+            --primary: 222.2 84% 4.9%;
+            --primary-foreground: 210 40% 98%;
+            --secondary: 210 40% 96%;
+            --secondary-foreground: 222.2 84% 4.9%;
+            --muted: 210 40% 96%;
+            --muted-foreground: 215.4 16.3% 46.9%;
+            --accent: 210 40% 96%;
+            --accent-foreground: 222.2 84% 4.9%;
+            --destructive: 0 84.2% 60.2%;
+            --destructive-foreground: 210 40% 98%;
+            --border: 214.3 31.8% 91.4%;
+            --input: 214.3 31.8% 91.4%;
+            --ring: 222.2 84% 4.9%;
+            --background: 0 0% 100%;
+            --foreground: 222.2 84% 4.9%;
+            --card: 0 0% 100%;
+            --card-foreground: 222.2 84% 4.9%;
+            --popover: 0 0% 100%;
+            --popover-foreground: 222.2 84% 4.9%;
+            --radius: 0.5rem;
+        }
+
+        .dark {
+            --primary: 210 40% 98%;
+            --primary-foreground: 222.2 84% 4.9%;
+            --secondary: 222.2 84% 4.9%;
+            --secondary-foreground: 210 40% 98%;
+            --muted: 222.2 84% 4.9%;
+            --muted-foreground: 215 20.2% 65.1%;
+            --accent: 222.2 84% 4.9%;
+            --accent-foreground: 210 40% 98%;
+            --destructive: 0 62.8% 30.6%;
+            --destructive-foreground: 210 40% 98%;
+            --border: 222.2 84% 4.9%;
+            --input: 222.2 84% 4.9%;
+            --ring: 212.7 26.8% 83.9%;
+            --background: 222.2 84% 4.9%;
+            --foreground: 210 40% 98%;
+            --card: 222.2 84% 4.9%;
+            --card-foreground: 210 40% 98%;
+            --popover: 222.2 84% 4.9%;
+            --popover-foreground: 210 40% 98%;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -12,60 +57,66 @@
         }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: hsl(var(--background));
+            color: hsl(var(--foreground));
             min-height: 100vh;
-            padding: 20px;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            padding: 1rem;
+            /* Mobile-first: Better touch targets */
+            touch-action: manipulation;
         }
         
+        /* Mobile-first container */
         .container {
-            max-width: 800px;
-            margin: auto;
-            padding: 30px;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(10px);
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+            background: hsl(var(--card));
+            border: 1px solid hsl(var(--border));
+            border-radius: var(--radius);
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
         }
         
         h1 {
+            font-size: 1.875rem;
+            font-weight: 700;
             text-align: center;
-            color: #333;
-            margin-bottom: 30px;
-            font-size: 2.5em;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            color: hsl(var(--foreground));
+            letter-spacing: -0.025em;
         }
         
+        /* Mobile-optimized group cards */
         .grupo {
-            margin-bottom: 25px;
-            padding: 20px;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 1.5rem;
+            padding: 1.5rem;
+            background: hsl(var(--card));
+            border: 1px solid hsl(var(--border));
+            border-radius: var(--radius);
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
             position: relative;
-            overflow: hidden;
-        }
-        
-        .grupo::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #667eea, #764ba2);
+            /* Touch-friendly */
+            min-height: 44px;
         }
         
         .grupo h3 {
-            color: #333;
-            margin-bottom: 15px;
-            font-size: 1.3em;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: hsl(var(--foreground));
         }
         
+        /* Mobile-first card flip animation */
         .card-container {
             perspective: 1000px;
-            height: 150px;
-            margin: 15px 0;
+            height: 120px;
+            margin: 1rem 0;
+            /* Touch-friendly */
+            min-height: 44px;
         }
         
         .card {
@@ -73,7 +124,8 @@
             height: 100%;
             position: relative;
             transform-style: preserve-3d;
-            transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
         }
         
         .card.flipped {
@@ -85,164 +137,289 @@
             width: 100%;
             height: 100%;
             backface-visibility: hidden;
-            border-radius: 10px;
+            border-radius: var(--radius);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.2em;
-            font-weight: bold;
+            font-weight: 500;
+            text-align: center;
+            padding: 1rem;
+            /* Better mobile text */
+            font-size: 0.875rem;
         }
         
         .card-front {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
+            background: hsl(var(--primary));
+            color: hsl(var(--primary-foreground));
+            border: 1px solid hsl(var(--border));
         }
         
         .card-back {
-            background: linear-gradient(135deg, #11998e, #38ef7d);
-            color: white;
+            background: hsl(var(--secondary));
+            color: hsl(var(--secondary-foreground));
+            border: 1px solid hsl(var(--border));
             transform: rotateY(180deg);
         }
         
+        /* Mobile-first form elements */
         label {
             display: block;
-            margin-bottom: 5px;
-            color: #555;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
             font-weight: 500;
+            color: hsl(var(--foreground));
         }
         
         input[type="text"], input[type="number"] {
             width: 100%;
-            padding: 12px;
-            margin-bottom: 15px;
-            border: 2px solid #e1e1e1;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: border-color 0.3s, box-shadow 0.3s;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            border: 1px solid hsl(var(--input));
+            border-radius: var(--radius);
+            background: hsl(var(--background));
+            color: hsl(var(--foreground));
+            font-size: 1rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            /* Mobile-friendly */
+            min-height: 44px;
+            -webkit-appearance: none;
+            appearance: none;
         }
         
         input[type="text"]:focus, input[type="number"]:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: hsl(var(--ring));
+            box-shadow: 0 0 0 2px hsl(var(--ring) / 0.2);
         }
         
+        /* Touch-friendly button system */
         .button-group {
             display: flex;
-            gap: 10px;
+            gap: 0.75rem;
             flex-wrap: wrap;
+            margin-top: 1rem;
         }
         
         button {
-            padding: 12px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            border: 1px solid hsl(var(--border));
+            border-radius: var(--radius);
+            font-size: 0.875rem;
             font-weight: 500;
-            transition: all 0.3s ease;
+            cursor: pointer;
+            transition: all 0.2s;
+            /* Mobile-optimized touch target */
+            min-height: 44px;
+            min-width: 44px;
             flex: 1;
-            min-width: 120px;
+            /* Prevent tap highlight on mobile */
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
         }
         
         .btn-primary {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
+            background: hsl(var(--primary));
+            color: hsl(var(--primary-foreground));
+            border-color: hsl(var(--primary));
         }
         
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        .btn-primary:hover:not(:disabled) {
+            background: hsl(var(--primary) / 0.9);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgb(0 0 0 / 0.12);
         }
         
-        .btn-danger {
-            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-            color: white;
+        .btn-secondary {
+            background: hsl(var(--secondary));
+            color: hsl(var(--secondary-foreground));
+            border-color: hsl(var(--border));
         }
         
-        .btn-danger:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+        .btn-secondary:hover:not(:disabled) {
+            background: hsl(var(--secondary) / 0.8);
+            transform: translateY(-1px);
+        }
+        
+        .btn-destructive {
+            background: hsl(var(--destructive));
+            color: hsl(var(--destructive-foreground));
+            border-color: hsl(var(--destructive));
+        }
+        
+        .btn-destructive:hover:not(:disabled) {
+            background: hsl(var(--destructive) / 0.9);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px hsl(var(--destructive) / 0.3);
         }
         
         .btn-success {
-            background: linear-gradient(135deg, #11998e, #38ef7d);
-            color: white;
+            background: hsl(142.1 76.2% 36.3%);
+            color: hsl(355.7 100% 97.3%);
+            border-color: hsl(142.1 76.2% 36.3%);
         }
         
-        .btn-success:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(17, 153, 142, 0.4);
+        .btn-success:hover:not(:disabled) {
+            background: hsl(142.1 76.2% 30%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px hsl(142.1 76.2% 36.3% / 0.3);
         }
         
-        .btn-warning {
-            background: linear-gradient(135deg, #ffa726, #ff7043);
-            color: white;
-        }
-        
-        .btn-warning:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255, 167, 38, 0.4);
-        }
-        
+        /* Mobile-first controls section */
         .controls-section {
-            margin-top: 40px;
-            padding: 25px;
-            background: rgba(255, 255, 255, 0.7);
-            border-radius: 15px;
-            border: 2px dashed #ccc;
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: hsl(var(--muted));
+            border: 2px dashed hsl(var(--border));
+            border-radius: var(--radius);
         }
         
         .controls-section h2 {
-            color: #333;
-            margin-bottom: 20px;
+            font-size: 1.25rem;
+            font-weight: 600;
             text-align: center;
+            margin-bottom: 1.5rem;
+            color: hsl(var(--foreground));
         }
         
         .control-group {
-            margin-bottom: 20px;
+            margin-bottom: 1.5rem;
         }
         
+        /* Loading spinner */
         .loading {
             display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
+            width: 16px;
+            height: 16px;
+            border: 2px solid hsl(var(--primary-foreground) / 0.3);
             border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
+            border-top-color: hsl(var(--primary-foreground));
+            animation: spin 1s linear infinite;
         }
         
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
         
+        /* Enhanced result display */
         .resultado {
-            margin-top: 15px;
-            padding: 15px;
-            background: rgba(17, 153, 142, 0.1);
-            border-radius: 8px;
-            border-left: 4px solid #11998e;
+            padding: 1rem;
+            background: hsl(var(--muted));
+            border: 1px solid hsl(var(--border));
+            border-radius: var(--radius);
             font-weight: 500;
-            color: #333;
+            color: hsl(var(--foreground));
+            text-align: center;
         }
         
-        @media (max-width: 600px) {
+        .resultado h4 {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            color: hsl(var(--muted-foreground));
+        }
+        
+        .resultado .numbers {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: hsl(var(--primary));
+            margin-top: 0.5rem;
+        }
+        
+        /* Mobile breakpoints */
+        @media (min-width: 640px) {
             .container {
-                margin: 10px;
-                padding: 20px;
+                padding: 2rem;
             }
             
             h1 {
-                font-size: 2em;
+                font-size: 2.25rem;
+            }
+            
+            .grupo {
+                padding: 2rem;
+            }
+            
+            .card-container {
+                height: 150px;
+            }
+            
+            .card-front, .card-back {
+                font-size: 1rem;
             }
             
             .button-group {
-                flex-direction: column;
+                flex-wrap: nowrap;
             }
             
             button {
-                min-width: auto;
+                flex: none;
+                min-width: 120px;
+            }
+        }
+        
+        @media (min-width: 768px) {
+            body {
+                padding: 2rem;
+            }
+            
+            .resultado .numbers {
+                font-size: 1.75rem;
+            }
+        }
+        
+        @media (min-width: 1024px) {
+            .container {
+                padding: 3rem;
+            }
+            
+            h1 {
+                font-size: 3rem;
+            }
+        }
+        
+        /* Touch gestures and accessibility */
+        @media (hover: none) and (pointer: coarse) {
+            button:hover {
+                transform: none;
+            }
+            
+            button:active {
+                transform: scale(0.98);
+            }
+        }
+        
+        /* High contrast mode support */
+        @media (prefers-contrast: high) {
+            .card-front, .card-back {
+                border-width: 2px;
+            }
+            
+            button {
+                border-width: 2px;
+            }
+        }
+        
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+            .card {
+                transition: none;
+            }
+            
+            button {
+                transition: none;
+            }
+            
+            .loading {
+                animation: none;
             }
         }
     </style>
@@ -267,9 +444,9 @@
         </div>
         
         <div class="button-group">
-            <button class="btn-warning" onclick="salvarDados()">💾 Salvar Dados</button>
+            <button class="btn-secondary" onclick="salvarDados()">💾 Salvar Dados</button>
             <button class="btn-primary" onclick="carregarDados()">📂 Carregar Dados</button>
-            <button class="btn-danger" onclick="limparTudo()">🗑️ Limpar Tudo</button>
+            <button class="btn-destructive" onclick="limparTudo()">🗑️ Limpar Tudo</button>
         </div>
     </div>
 
@@ -278,103 +455,213 @@
 <script>
     let grupoIdCounter = 1;
     
-    // Função para gerar ID único
+    // Security: Input sanitization and validation
+    function sanitizeInput(input) {
+        if (typeof input !== 'string') return '';
+        return input.replace(/[<>"'&]/g, function(match) {
+            const map = {
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;',
+                '&': '&amp;'
+            };
+            return map[match];
+        }).trim();
+    }
+    
+    function validateNumberInput(input) {
+        const numbers = input.split(',').map(n => n.trim()).filter(n => n !== '');
+        return numbers.every(n => /^\d+$/.test(n));
+    }
+    
+    // Generate unique ID
     function gerarIdGrupo() {
-        return 'grupo_' + grupoIdCounter++;
+        return 'grupo_' + grupoIdCounter++ + '_' + Date.now();
     }
     
-    // Função para salvar dados no localStorage
+    // Enhanced localStorage with error handling and data validation
     function salvarDados() {
-        const grupos = [];
-        const gruposElements = document.querySelectorAll('.grupo');
-        
-        gruposElements.forEach(grupo => {
-            const nome = grupo.querySelector('h3').textContent;
-            const numeros = grupo.querySelector('input[type="text"]').value;
-            const quantidade = grupo.querySelector('input[type="number"]').value;
+        try {
+            const grupos = [];
+            const gruposElements = document.querySelectorAll('.grupo');
             
-            grupos.push({
-                nome: nome,
-                numeros: numeros,
-                quantidade: quantidade
+            gruposElements.forEach(grupo => {
+                const nome = sanitizeInput(grupo.querySelector('h3').textContent);
+                const numeros = sanitizeInput(grupo.querySelector('input[type="text"]').value);
+                const quantidade = parseInt(grupo.querySelector('input[type="number"]').value, 10);
+                
+                if (nome && numeros && !isNaN(quantidade)) {
+                    grupos.push({
+                        nome: nome,
+                        numeros: numeros,
+                        quantidade: quantidade
+                    });
+                }
             });
-        });
-        
-        const delayValue = document.getElementById('delay-input').value;
-        
-        const dadosParaSalvar = {
-            grupos: grupos,
-            delay: delayValue,
-            timestamp: new Date().toISOString()
-        };
-        
-        localStorage.setItem('sorteador-dados', JSON.stringify(dadosParaSalvar));
-        alert('Dados salvos com sucesso!');
+            
+            const delayValue = parseFloat(document.getElementById('delay-input').value) || 2;
+            
+            const dadosParaSalvar = {
+                grupos: grupos,
+                delay: delayValue,
+                timestamp: new Date().toISOString(),
+                version: '2.0'
+            };
+            
+            localStorage.setItem('sorteador-dados', JSON.stringify(dadosParaSalvar));
+            mostrarNotificacao('Dados salvos com sucesso!', 'success');
+        } catch (error) {
+            console.error('Erro ao salvar dados:', error);
+            mostrarNotificacao('Erro ao salvar dados: ' + error.message, 'error');
+        }
     }
     
-    // Função para carregar dados do localStorage
     function carregarDados() {
-        const dadosSalvos = localStorage.getItem('sorteador-dados');
-        
-        if (!dadosSalvos) {
-            alert('Nenhum dado salvo encontrado!');
-            return;
-        }
-        
         try {
+            const dadosSalvos = localStorage.getItem('sorteador-dados');
+            
+            if (!dadosSalvos) {
+                mostrarNotificacao('Nenhum dado salvo encontrado!', 'warning');
+                return;
+            }
+            
             const dados = JSON.parse(dadosSalvos);
             
-            // Limpar grupos existentes
+            // Data validation
+            if (!dados || typeof dados !== 'object') {
+                throw new Error('Formato de dados inválido');
+            }
+            
+            // Clear existing groups
             document.getElementById('grupos-container').innerHTML = '';
             
-            // Restaurar delay
-            if (dados.delay) {
+            // Restore delay
+            if (dados.delay && !isNaN(dados.delay)) {
                 document.getElementById('delay-input').value = dados.delay;
             }
             
-            // Restaurar grupos
-            if (dados.grupos && dados.grupos.length > 0) {
+            // Restore groups with validation
+            if (dados.grupos && Array.isArray(dados.grupos) && dados.grupos.length > 0) {
                 dados.grupos.forEach(grupoData => {
-                    criarGrupo(grupoData.nome, grupoData.numeros, grupoData.quantidade);
+                    if (grupoData.nome && grupoData.numeros !== undefined && grupoData.quantidade) {
+                        criarGrupo(
+                            sanitizeInput(grupoData.nome), 
+                            sanitizeInput(grupoData.numeros), 
+                            grupoData.quantidade
+                        );
+                    }
                 });
-                alert('Dados carregados com sucesso!');
+                mostrarNotificacao('Dados carregados com sucesso!', 'success');
             } else {
-                alert('Nenhum grupo encontrado nos dados salvos!');
+                mostrarNotificacao('Nenhum grupo encontrado nos dados salvos!', 'warning');
             }
         } catch (error) {
-            alert('Erro ao carregar dados: ' + error.message);
+            console.error('Erro ao carregar dados:', error);
+            mostrarNotificacao('Erro ao carregar dados: ' + error.message, 'error');
         }
     }
     
-    // Função para limpar tudo
     function limparTudo() {
         if (confirm('Tem certeza que deseja limpar todos os dados salvos? Esta ação não pode ser desfeita.')) {
-            localStorage.removeItem('sorteador-dados');
-            document.getElementById('grupos-container').innerHTML = '';
-            document.getElementById('delay-input').value = '2';
-            alert('Todos os dados foram limpos!');
+            try {
+                localStorage.removeItem('sorteador-dados');
+                document.getElementById('grupos-container').innerHTML = '';
+                document.getElementById('delay-input').value = '2';
+                mostrarNotificacao('Todos os dados foram limpos!', 'success');
+            } catch (error) {
+                console.error('Erro ao limpar dados:', error);
+                mostrarNotificacao('Erro ao limpar dados: ' + error.message, 'error');
+            }
         }
     }
     
-    // Função para criar um grupo
+    // Enhanced notification system
+    function mostrarNotificacao(mensagem, tipo = 'info') {
+        // Remove existing notifications
+        const existingNotifications = document.querySelectorAll('.notification');
+        existingNotifications.forEach(n => n.remove());
+        
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${tipo}`;
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius);
+            font-weight: 500;
+            font-size: 0.875rem;
+            max-width: 300px;
+            word-wrap: break-word;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        `;
+        
+        // Style based on type
+        switch (tipo) {
+            case 'success':
+                notification.style.background = 'hsl(142.1 76.2% 36.3%)';
+                notification.style.color = 'white';
+                break;
+            case 'error':
+                notification.style.background = 'hsl(var(--destructive))';
+                notification.style.color = 'hsl(var(--destructive-foreground))';
+                break;
+            case 'warning':
+                notification.style.background = 'hsl(38 92% 50%)';
+                notification.style.color = 'white';
+                break;
+            default:
+                notification.style.background = 'hsl(var(--primary))';
+                notification.style.color = 'hsl(var(--primary-foreground))';
+        }
+        
+        notification.textContent = mensagem;
+        document.body.appendChild(notification);
+        
+        // Animate in
+        setTimeout(() => {
+            notification.style.transform = 'translateX(0)';
+        }, 10);
+        
+        // Remove after delay
+        setTimeout(() => {
+            notification.style.transform = 'translateX(100%)';
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
+    }
+    
+    // Enhanced group creation with validation
     function criarGrupo(nome, numeros = '', quantidade = '1') {
         const container = document.getElementById('grupos-container');
         const grupoDiv = document.createElement('div');
         const grupoId = gerarIdGrupo();
         grupoDiv.className = 'grupo';
         grupoDiv.id = grupoId;
+        
+        // Security: Sanitize inputs
+        nome = sanitizeInput(nome);
+        numeros = sanitizeInput(numeros);
+        quantidade = parseInt(quantidade, 10) || 1;
 
         grupoDiv.innerHTML = `
             <h3>${nome}</h3>
             <label>Números (separados por vírgula):</label>
-            <input type="text" value="${numeros}" placeholder="Ex: 1, 4, 6, 7, 9">
+            <input type="text" value="${numeros}" placeholder="Ex: 1, 4, 6, 7, 9" 
+                   pattern="[0-9,\s]+" 
+                   title="Digite apenas números separados por vírgula"
+                   autocomplete="off">
             <label>Quantidade a sortear:</label>
-            <input type="number" value="${quantidade}" min="1">
+            <input type="number" value="${quantidade}" min="1" max="1000" 
+                   autocomplete="off">
             
             <div class="card-container">
                 <div class="card" id="card-${grupoId}">
                     <div class="card-front">
-                        🎲 Clique em "Sortear" para revelar os números!
+                        🎲 Toque em "Sortear" para revelar os números!
                     </div>
                     <div class="card-back">
                         <div class="resultado"></div>
@@ -383,40 +670,103 @@
             </div>
             
             <div class="button-group">
-                <button class="btn-primary" onclick="realizarSorteio('${grupoId}')">🎯 Sortear</button>
-                <button class="btn-danger" onclick="excluirGrupo('${grupoId}')">🗑️ Excluir Grupo</button>
+                <button class="btn-primary" onclick="realizarSorteio('${grupoId}')" 
+                        aria-label="Sortear números para ${nome}">
+                    🎯 Sortear
+                </button>
+                <button class="btn-destructive" onclick="excluirGrupo('${grupoId}')" 
+                        aria-label="Excluir grupo ${nome}">
+                    🗑️ Excluir Grupo
+                </button>
             </div>
         `;
 
         container.appendChild(grupoDiv);
+        
+        // Add mobile touch events for card flip
+        const card = grupoDiv.querySelector('.card');
+        let touchStartX = 0;
+        let touchStartY = 0;
+        
+        card.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        }, { passive: true });
+        
+        card.addEventListener('touchend', (e) => {
+            const touchEndX = e.changedTouches[0].clientX;
+            const touchEndY = e.changedTouches[0].clientY;
+            const deltaX = touchEndX - touchStartX;
+            const deltaY = touchEndY - touchStartY;
+            
+            // Swipe gesture detection (horizontal swipe)
+            if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
+                card.classList.toggle('flipped');
+            }
+        }, { passive: true });
     }
     
     function adicionarGrupo() {
         const nomeGrupo = prompt("Digite o nome do novo grupo:");
         if (!nomeGrupo || nomeGrupo.trim() === '') {
-            alert('Nome do grupo é obrigatório!');
+            mostrarNotificacao('Nome do grupo é obrigatório!', 'warning');
             return;
         }
         
-        criarGrupo(nomeGrupo.trim());
+        // Security: Validate and sanitize input
+        const nomeSeguro = sanitizeInput(nomeGrupo.trim());
+        if (nomeSeguro.length > 50) {
+            mostrarNotificacao('Nome do grupo muito longo (máximo 50 caracteres)!', 'warning');
+            return;
+        }
+        
+        criarGrupo(nomeSeguro);
+        mostrarNotificacao('Grupo criado com sucesso!', 'success');
     }
     
     function excluirGrupo(grupoId) {
         const grupoDiv = document.getElementById(grupoId);
+        if (!grupoDiv) return;
+        
         const nomeGrupo = grupoDiv.querySelector('h3').textContent;
         
         if (confirm(`Tem certeza que deseja excluir o grupo "${nomeGrupo}"?`)) {
-            grupoDiv.remove();
+            grupoDiv.style.transform = 'scale(0.8)';
+            grupoDiv.style.opacity = '0';
+            grupoDiv.style.transition = 'all 0.3s ease';
+            
+            setTimeout(() => {
+                grupoDiv.remove();
+                mostrarNotificacao('Grupo excluído com sucesso!', 'success');
+            }, 300);
         }
     }
 
     function realizarSorteio(grupoId) {
         const grupoDiv = document.getElementById(grupoId);
+        if (!grupoDiv) return;
+        
         const numerosInput = grupoDiv.querySelector('input[type="text"]').value;
         const quantidadeInput = parseInt(grupoDiv.querySelector('input[type="number"]').value, 10);
         const card = grupoDiv.querySelector('.card');
         const resultadoDiv = grupoDiv.querySelector('.resultado');
         const sortearBtn = grupoDiv.querySelector('.btn-primary');
+        
+        // Input validation
+        if (!numerosInput.trim()) {
+            mostrarNotificacao('Por favor, insira os números para o sorteio.', 'warning');
+            return;
+        }
+        
+        if (!validateNumberInput(numerosInput)) {
+            mostrarNotificacao('Por favor, insira apenas números separados por vírgula.', 'warning');
+            return;
+        }
+        
+        if (isNaN(quantidadeInput) || quantidadeInput < 1) {
+            mostrarNotificacao('Quantidade inválida. Deve ser um número maior que 0.', 'warning');
+            return;
+        }
         
         // Reset card flip
         card.classList.remove('flipped');
@@ -424,12 +774,18 @@
         const numerosArray = numerosInput.split(',').map(n => n.trim()).filter(n => n !== '');
 
         if (numerosArray.length === 0) {
-            alert('Por favor, insira os números para o sorteio.');
+            mostrarNotificacao('Por favor, insira pelo menos um número.', 'warning');
             return;
         }
 
         if (quantidadeInput > numerosArray.length) {
-            alert('A quantidade a sortear não pode ser maior que a quantidade de números disponíveis.');
+            mostrarNotificacao('A quantidade a sortear não pode ser maior que a quantidade de números disponíveis.', 'warning');
+            return;
+        }
+        
+        // Security: Limit max quantity
+        if (quantidadeInput > 100) {
+            mostrarNotificacao('Quantidade muito alta (máximo 100).', 'warning');
             return;
         }
         
@@ -437,66 +793,106 @@
         sortearBtn.disabled = true;
         sortearBtn.innerHTML = '<span class="loading"></span> Sorteando...';
         
-        const delaySegundos = parseFloat(document.getElementById('delay-input').value) || 2;
+        const delaySegundos = Math.max(0, Math.min(10, parseFloat(document.getElementById('delay-input').value) || 2));
         
         setTimeout(() => {
-            let sorteados = [];
-            let copiaArray = [...numerosArray];
+            try {
+                let sorteados = [];
+                let copiaArray = [...numerosArray];
 
-            for (let i = 0; i < quantidadeInput; i++) {
-                const indiceSorteado = Math.floor(Math.random() * copiaArray.length);
-                sorteados.push(copiaArray.splice(indiceSorteado, 1)[0]);
-            }
+                for (let i = 0; i < quantidadeInput; i++) {
+                    const indiceSorteado = Math.floor(Math.random() * copiaArray.length);
+                    sorteados.push(copiaArray.splice(indiceSorteado, 1)[0]);
+                }
 
-            resultadoDiv.innerHTML = `
-                <div style="text-align: center;">
+                resultadoDiv.innerHTML = `
                     <h4>🎉 Números Sorteados:</h4>
-                    <div style="font-size: 1.5em; color: #11998e; margin-top: 10px;">
+                    <div class="numbers">
                         ${sorteados.join(' • ')}
                     </div>
-                </div>
-            `;
-            
-            // Flip the card
-            card.classList.add('flipped');
-            
-            // Re-enable button
-            sortearBtn.disabled = false;
-            sortearBtn.innerHTML = '🎯 Sortear';
+                `;
+                
+                // Flip the card with haptic feedback on mobile
+                card.classList.add('flipped');
+                
+                // Vibration feedback on mobile devices
+                if ('vibrate' in navigator) {
+                    navigator.vibrate(200);
+                }
+                
+                mostrarNotificacao('Sorteio realizado com sucesso!', 'success');
+                
+            } catch (error) {
+                console.error('Erro no sorteio:', error);
+                mostrarNotificacao('Erro ao realizar sorteio: ' + error.message, 'error');
+                resultadoDiv.innerHTML = '<div style="color: hsl(var(--destructive));">Erro no sorteio</div>';
+            } finally {
+                // Re-enable button
+                sortearBtn.disabled = false;
+                sortearBtn.innerHTML = '🎯 Sortear';
+            }
             
         }, delaySegundos * 1000);
     }
 
-    // Carrega dados salvos e grupos de exemplo ao iniciar
+    // Enhanced initialization with error handling
     window.onload = function() {
-        // Tentar carregar dados salvos primeiro
-        const dadosSalvos = localStorage.getItem('sorteador-dados');
-        
-        if (dadosSalvos) {
-            try {
+        try {
+            // Try to load saved data first
+            const dadosSalvos = localStorage.getItem('sorteador-dados');
+            
+            if (dadosSalvos) {
                 const dados = JSON.parse(dadosSalvos);
                 
-                // Restaurar delay
-                if (dados.delay) {
-                    document.getElementById('delay-input').value = dados.delay;
+                // Restore delay with validation
+                if (dados.delay && !isNaN(dados.delay)) {
+                    document.getElementById('delay-input').value = Math.max(0, Math.min(10, dados.delay));
                 }
                 
-                // Restaurar grupos se existirem
-                if (dados.grupos && dados.grupos.length > 0) {
+                // Restore groups if they exist and are valid
+                if (dados.grupos && Array.isArray(dados.grupos) && dados.grupos.length > 0) {
                     dados.grupos.forEach(grupoData => {
-                        criarGrupo(grupoData.nome, grupoData.numeros, grupoData.quantidade);
+                        if (grupoData.nome && grupoData.numeros !== undefined && grupoData.quantidade) {
+                            criarGrupo(
+                                sanitizeInput(grupoData.nome), 
+                                sanitizeInput(grupoData.numeros), 
+                                grupoData.quantidade
+                            );
+                        }
                     });
-                    return; // Não criar grupos de exemplo se há dados salvos
+                    return; // Don't create example groups if saved data exists
                 }
-            } catch (error) {
-                console.error('Erro ao carregar dados salvos:', error);
             }
+        } catch (error) {
+            console.error('Erro ao carregar dados salvos:', error);
+            mostrarNotificacao('Erro ao carregar dados salvos. Criando grupos padrão.', 'warning');
         }
         
-        // Criar grupos de exemplo apenas se não há dados salvos
+        // Create example groups only if no saved data exists
         criarGrupo('Fauna', '1, 4, 6, 7, 9', '2');
         criarGrupo('Flora', '2, 3, 5, 8, 10', '2');
     };
+    
+    // Add keyboard shortcuts for accessibility
+    document.addEventListener('keydown', function(e) {
+        // Ctrl/Cmd + S to save
+        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+            e.preventDefault();
+            salvarDados();
+        }
+        // Ctrl/Cmd + L to load
+        if ((e.ctrlKey || e.metaKey) && e.key === 'l') {
+            e.preventDefault();
+            carregarDados();
+        }
+    });
+    
+    // Service Worker registration for offline capability (optional)
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+            // Service worker can be added later for offline functionality
+        });
+    }
 </script>
 
 </body>
