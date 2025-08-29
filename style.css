@@ -333,6 +333,37 @@ button:disabled {
     animation: pulseNumbers 0.6s ease-out;
 }
 
+/* Countdown timer styles */
+.countdown {
+    font-size: 4rem;
+    font-weight: 900;
+    color: white;
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    animation: countdownPulse 1s ease-in-out infinite;
+}
+
+.countdown-text {
+    font-size: 1rem;
+    color: white;
+    margin-bottom: 1rem;
+    opacity: 0.9;
+}
+
+@keyframes countdownPulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 0.8;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
 @keyframes pulseNumbers {
     0% {
         transform: scale(0.8);
@@ -388,6 +419,10 @@ button:disabled {
         padding: 2rem;
     }
     
+    .grupo h3 {
+        font-size: 1.75rem;
+    }
+    
     .card-container {
         height: 250px;
     }
@@ -415,6 +450,10 @@ button:disabled {
         padding: 2rem;
     }
     
+    .grupo h3 {
+        font-size: 2rem;
+    }
+    
     .card-container {
         height: 300px;
     }
@@ -435,6 +474,10 @@ button:disabled {
     
     h1 {
         font-size: 3rem;
+    }
+    
+    .grupo h3 {
+        font-size: 2.25rem;
     }
     
     .resultado .numbers {
