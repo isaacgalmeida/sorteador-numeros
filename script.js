@@ -13,6 +13,9 @@ const cardColors = ['color-1', 'color-2', 'color-3', 'color-4', 'color-5', 'colo
 let colorCounter = 0;
 let iconCounter = 0;
 
+// Array to store drawn numbers history
+let historicoSorteios = [];
+
 // Security: Input sanitization and validation
 function sanitizeInput(input) {
     if (typeof input !== 'string') return '';
@@ -65,8 +68,9 @@ function salvarDados() {
             delay: delayValue,
             iconCounter: iconCounter,
             colorCounter: colorCounter,
+            historico: historicoSorteios,
             timestamp: new Date().toISOString(),
-            version: '2.0'
+            version: '2.1'
         };
         
         localStorage.setItem('sorteador-dados', JSON.stringify(dadosParaSalvar));
@@ -109,6 +113,12 @@ function carregarDados() {
             colorCounter = dados.colorCounter;
         }
         
+        // Restore history
+        if (dados.historico && Array.isArray(dados.historico)) {
+            historicoSorteios = dados.historico;
+            atualizarHistorico();
+        }
+        
         // Restore groups with validation
         if (dados.grupos && Array.isArray(dados.grupos) && dados.grupos.length > 0) {
             dados.grupos.forEach(grupoData => {
@@ -139,6 +149,9 @@ function limparTudo() {
             // Reset counters
             iconCounter = 0;
             colorCounter = 0;
+            // Clear history
+            historicoSorteios = [];
+            atualizarHistorico();
             mostrarNotificacao('Todos os dados foram limpos!', 'success');
         } catch (error) {
             console.error('Erro ao limpar dados:', error);
@@ -392,6 +405,134 @@ function iniciarContadorRegressivo(resultadoDiv, card, delaySegundos, callback) 
     }, 100); // Update every 100ms for smoother countdown
 }
 
+// Function to update history display
+function atualizarHistorico() {
+    const historicoContainer = document.getElementById('historico-container');
+    const copySection = document.getElementById('copy-section');
+    
+    if (historicoSorteios.length === 0) {
+        historicoContainer.innerHTML = '<p class="empty-history">Nenhum número sorteado ainda. Realize um sorteio para ver o histórico aqui.</p>';
+        copySection.style.display = 'none';
+        return;
+    }
+    
+    copySection.style.display = 'block';
+    
+    // Group history by group name
+    const historicoPorGrupo = {};
+    historicoSorteios.forEach(sorteado => {
+        if (!historicoPorGrupo[sorteado.nomeGrupo]) {
+            historicoPorGrupo[sorteado.nomeGrupo] = [];
+        }
+        historicoPorGrupo[sorteado.nomeGrupo].push(sorteado);
+    });
+    
+    // Build HTML for history
+    let historicoHTML = '';
+    Object.keys(historicoPorGrupo).forEach(nomeGrupo => {
+        const sorteiosDoGrupo = historicoPorGrupo[nomeGrupo];
+        const ultimoSorteio = sorteiosDoGrupo[sorteiosDoGrupo.length - 1];
+        
+        historicoHTML += `
+            <div class="historico-item">
+                <div class="historico-titulo">
+                    <span>${ultimoSorteio.icone}</span>
+                    ${nomeGrupo}
+                </div>
+                <div class="historico-numeros">
+                    ${ultimoSorteio.numeros.map(num => `<span class="numero-destacado">${num}</span>`).join('')}
+                </div>
+                <div class="historico-data">
+                    Último sorteio: ${ultimoSorteio.data}
+                </div>
+            </div>
+        `;
+    });
+    
+    historicoContainer.innerHTML = historicoHTML;
+    
+    // Update copy text
+    atualizarTextoCopia();
+}
+
+// Function to update copy text
+function atualizarTextoCopia() {
+    if (historicoSorteios.length === 0) return;
+    
+    // Group by group and get latest results
+    const ultimosResultados = {};
+    historicoSorteios.forEach(sorteado => {
+        ultimosResultados[sorteado.nomeGrupo] = sorteado;
+    });
+    
+    // Format text for sharing
+    let textoCompartilhar = '🎲 RESULTADOS DO SORTEIO 🎲\n\n';
+    
+    Object.keys(ultimosResultados).forEach(nomeGrupo => {
+        const sorteio = ultimosResultados[nomeGrupo];
+        textoCompartilhar += `${sorteio.icone} ${nomeGrupo}:\n`;
+        textoCompartilhar += `Números: ${sorteio.numeros.join(', ')}\n\n`;
+    });
+    
+    textoCompartilhar += `📅 ${new Date().toLocaleString('pt-BR')}\n`;
+    textoCompartilhar += `✅ Sorteio realizado com o Sorteador de Números`;
+    
+    document.getElementById('resultados-texto').value = textoCompartilhar;
+}
+
+// Function to copy results
+function copiarResultados() {
+    const textarea = document.getElementById('resultados-texto');
+    const feedback = document.getElementById('copy-feedback');
+    const btnCopy = document.querySelector('.btn-copy');
+    
+    try {
+        // Select and copy text
+        textarea.select();
+        textarea.setSelectionRange(0, 99999); // For mobile devices
+        
+        navigator.clipboard.writeText(textarea.value).then(() => {
+            // Show success feedback
+            feedback.textContent = '✅ Resultados copiados com sucesso!';
+            feedback.className = 'copy-feedback success';
+            
+            // Change button appearance
+            btnCopy.innerHTML = '✅ Copiado!';
+            btnCopy.classList.add('copied');
+            
+            // Reset after 3 seconds
+            setTimeout(() => {
+                feedback.textContent = '';
+                btnCopy.innerHTML = '📋 Copiar Resultados';
+                btnCopy.classList.remove('copied');
+            }, 3000);
+            
+            // Optional: Vibration feedback
+            if ('vibrate' in navigator) {
+                navigator.vibrate(100);
+            }
+            
+        }).catch(() => {
+            // Fallback for older browsers
+            document.execCommand('copy');
+            feedback.textContent = '✅ Resultados copiados com sucesso!';
+            feedback.className = 'copy-feedback success';
+            
+            setTimeout(() => {
+                feedback.textContent = '';
+            }, 3000);
+        });
+        
+    } catch (error) {
+        feedback.textContent = '❌ Erro ao copiar. Tente selecionar e copiar manualmente.';
+        feedback.className = 'copy-feedback error';
+        
+        setTimeout(() => {
+            feedback.textContent = '';
+        }, 3000);
+    }
+}
+
 // Separated lottery execution logic
 function executarSorteio(numerosArray, quantidadeInput, resultadoDiv, card, sortearBtn, grupoDiv) {
     try {
@@ -405,11 +546,26 @@ function executarSorteio(numerosArray, quantidadeInput, resultadoDiv, card, sort
 
         // Enhanced display with large numbers
         resultadoDiv.innerHTML = `
-            <h4>🎉 Números Sorteados:</h4>
+            <h4>🎉 Número(s) Sorteado(s):</h4>
             <div class="numbers">
                 ${sorteados.join(' • ')}
             </div>
         `;
+        
+        // Add to history
+        const nomeGrupo = grupoDiv.querySelector('h3').textContent.trim();
+        const iconeGrupo = grupoDiv.querySelector('h3 .icon').textContent;
+        const dataAtual = new Date().toLocaleString('pt-BR');
+        
+        historicoSorteios.push({
+            nomeGrupo: nomeGrupo,
+            icone: iconeGrupo,
+            numeros: sorteados,
+            data: dataAtual
+        });
+        
+        // Update history display
+        atualizarHistorico();
         
         // Ensure card is flipped to show results
         card.classList.add('flipped');
@@ -468,7 +624,7 @@ window.onload = function() {
                         );
                     }
                 });
-                return; // Don't create example groups if saved data exists
+                // Don't create example groups if saved data exists
             }
         }
     } catch (error) {
@@ -476,9 +632,16 @@ window.onload = function() {
         mostrarNotificacao('Erro ao carregar dados salvos. Criando grupos padrão.', 'warning');
     }
     
+    // Add event listeners
+    document.getElementById('btn-adicionar-grupo').addEventListener('click', adicionarGrupo);
+    document.getElementById('btn-limpar-tudo').addEventListener('click', limparTudo);
+    document.getElementById('btn-copiar-resultados').addEventListener('click', copiarResultados);
+    
     // Create example groups only if no saved data exists
-    criarGrupo('Fauna', '1, 4, 6, 7, 9', '2');
-    criarGrupo('Flora', '2, 3, 5, 8, 10', '2');
+    if (document.getElementById('grupos-container').children.length === 0) {
+        criarGrupo('Fauna', '1, 4, 6, 7, 9', '2');
+        criarGrupo('Flora', '2, 3, 5, 8, 10', '2');
+    }
 };
 
 // Add keyboard shortcuts for accessibility

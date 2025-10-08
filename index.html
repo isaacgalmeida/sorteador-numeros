@@ -23,6 +23,24 @@
 
     <button class="btn-success" onclick="adicionarGrupo()">Adicionar Novo Grupo de Sorteio</button>
     
+    <!-- Drawn Numbers History Section -->
+    <div class="history-section" id="historico-section">
+        <h2>📋 Histórico de Números Sorteados</h2>
+        <div id="historico-container">
+            <p class="empty-history">Nenhum número sorteado ainda. Realize um sorteio para ver o histórico aqui.</p>
+        </div>
+        <div class="copy-section" id="copy-section" style="display: none;">
+            <h3>📤 Compartilhar Resultados</h3>
+            <div class="copy-container">
+                <textarea id="resultados-texto" readonly placeholder="Os resultados aparecerão aqui..."></textarea>
+                <button class="btn-copy" onclick="copiarResultados()">
+                    📋 Copiar Resultados
+                </button>
+            </div>
+            <div id="copy-feedback" class="copy-feedback"></div>
+        </div>
+    </div>
+    
     <!-- Controls Section -->
     <div class="controls-section">
         <h2>⚙️ Configurações</h2>
