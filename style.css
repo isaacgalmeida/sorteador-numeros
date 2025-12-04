@@ -94,6 +94,42 @@ h1 {
     position: relative;
     /* Touch-friendly */
     min-height: 44px;
+    cursor: move;
+    cursor: grab;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.grupo:active {
+    cursor: grabbing;
+}
+
+.grupo.drag-over {
+    border: 2px dashed hsl(var(--primary));
+    background: hsl(var(--muted));
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgb(0 0 0 / 0.15);
+}
+
+.drag-handle {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    font-size: 1.5rem;
+    color: hsl(var(--muted-foreground));
+    cursor: grab;
+    user-select: none;
+    opacity: 0.5;
+    transition: opacity 0.2s ease;
+    line-height: 1;
+    padding: 0.25rem;
+}
+
+.drag-handle:hover {
+    opacity: 1;
+}
+
+.grupo:active .drag-handle {
+    cursor: grabbing;
 }
 
 .grupo h3 {
@@ -109,6 +145,17 @@ h1 {
 .grupo h3 .icon {
     font-size: 1.2em;
     flex-shrink: 0;
+}
+
+.grupo h3 .titulo-editavel {
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    transition: background-color 0.2s ease;
+}
+
+.grupo h3 .titulo-editavel:hover {
+    background-color: hsl(var(--muted));
 }
 
 /* Enhanced card flip animation for prominent display */
@@ -696,7 +743,7 @@ button:disabled {
 
 #resultados-texto {
     flex: 1;
-    min-height: 100px;
+    min-height: 300px;
     padding: 1rem;
     border: 1px solid hsl(var(--border));
     border-radius: var(--radius);

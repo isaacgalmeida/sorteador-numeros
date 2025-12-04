@@ -203,6 +203,7 @@ function criarGrupo(nome, numeros = '', quantidade = '1') {
     const grupoId = gerarIdGrupo();
     grupoDiv.className = 'grupo';
     grupoDiv.id = grupoId;
+    grupoDiv.draggable = true;
     
     // Security: Sanitize inputs
     nome = sanitizeInput(nome);
@@ -218,7 +219,8 @@ function criarGrupo(nome, numeros = '', quantidade = '1') {
     colorCounter++;
 
     grupoDiv.innerHTML = `
-        <h3><span class="icon">${icon}</span>${nome}</h3>
+        <div class="drag-handle" title="Arraste para reordenar">⋮⋮</div>
+        <h3><span class="icon">${icon}</span><span class="titulo-editavel">${nome}</span></h3>
         <label>Números (separados por vírgula):</label>
         <input type="text" value="${numeros}" placeholder="Ex: 1, 4, 6, 7, 9" 
                pattern="[0-9,\\s]+" 
@@ -253,6 +255,29 @@ function criarGrupo(nome, numeros = '', quantidade = '1') {
 
     container.appendChild(grupoDiv);
     
+    // Add drag and drop events
+    configurarDragAndDrop(grupoDiv);
+    
+    // Add click event to edit title
+    const tituloEditavel = grupoDiv.querySelector('.titulo-editavel');
+    tituloEditavel.style.cursor = 'pointer';
+    tituloEditavel.title = 'Clique para editar o título';
+    
+    tituloEditavel.addEventListener('click', function() {
+        const tituloAtual = this.textContent;
+        const novoTitulo = prompt('Digite o novo nome do grupo:', tituloAtual);
+        
+        if (novoTitulo !== null && novoTitulo.trim() !== '') {
+            const tituloSeguro = sanitizeInput(novoTitulo.trim());
+            if (tituloSeguro.length > 50) {
+                mostrarNotificacao('Nome do grupo muito longo (máximo 50 caracteres)!', 'warning');
+                return;
+            }
+            this.textContent = tituloSeguro;
+            mostrarNotificacao('Título atualizado com sucesso!', 'success');
+        }
+    });
+    
     // Add mobile touch events for card flip
     const card = grupoDiv.querySelector('.card');
     let touchStartX = 0;
@@ -274,6 +299,68 @@ function criarGrupo(nome, numeros = '', quantidade = '1') {
             card.classList.toggle('flipped');
         }
     }, { passive: true });
+}
+
+// Drag and drop functionality
+let draggedElement = null;
+
+function configurarDragAndDrop(grupoDiv) {
+    grupoDiv.addEventListener('dragstart', function(e) {
+        draggedElement = this;
+        this.style.opacity = '0.5';
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/html', this.innerHTML);
+    });
+    
+    grupoDiv.addEventListener('dragend', function(e) {
+        this.style.opacity = '1';
+        
+        // Remove all drag-over classes
+        document.querySelectorAll('.grupo').forEach(grupo => {
+            grupo.classList.remove('drag-over');
+        });
+    });
+    
+    grupoDiv.addEventListener('dragover', function(e) {
+        if (e.preventDefault) {
+            e.preventDefault();
+        }
+        e.dataTransfer.dropEffect = 'move';
+        
+        if (draggedElement !== this) {
+            this.classList.add('drag-over');
+        }
+        
+        return false;
+    });
+    
+    grupoDiv.addEventListener('dragleave', function(e) {
+        this.classList.remove('drag-over');
+    });
+    
+    grupoDiv.addEventListener('drop', function(e) {
+        if (e.stopPropagation) {
+            e.stopPropagation();
+        }
+        
+        if (draggedElement !== this) {
+            const container = document.getElementById('grupos-container');
+            const allGrupos = [...container.querySelectorAll('.grupo')];
+            const draggedIndex = allGrupos.indexOf(draggedElement);
+            const targetIndex = allGrupos.indexOf(this);
+            
+            if (draggedIndex < targetIndex) {
+                this.parentNode.insertBefore(draggedElement, this.nextSibling);
+            } else {
+                this.parentNode.insertBefore(draggedElement, this);
+            }
+            
+            mostrarNotificacao('Ordem dos grupos atualizada!', 'success');
+        }
+        
+        this.classList.remove('drag-over');
+        return false;
+    });
 }
 
 function adicionarGrupo() {
